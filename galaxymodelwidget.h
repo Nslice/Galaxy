@@ -1,10 +1,8 @@
-#ifndef GALAXYMODELWIDGET_H_INCLUDED
-#define GALAXYMODELWIDGET_H_INCLUDED
+#ifndef GALAXY_MODEL_WIDGET_H_INCLUDED
+#define GALAXY_MODEL_WIDGET_H_INCLUDED
 
 #include <QWidget>
 #include <QPainter>
-#include <QImage>
-#include <QTimer>
 #include <QList>
 #include <QtMath>
 #include <QRandomGenerator>
@@ -18,15 +16,12 @@ class GalaxyModelWidget : public QWidget
     Q_OBJECT
 
 public:
-    const static int SIDE = 500;
     const static int LENGTH = 250;
 
 private:
     QRandomGenerator* rand;
-    QTimer* timer;
-    QPoint center;
-    int modelNumber;
     QList<QPoint> list;
+    int modelNumber;
 
 public:
     explicit GalaxyModelWidget(QWidget* parent = nullptr);
@@ -45,4 +40,4 @@ public slots:
 };
 
 
-#endif // GALAXYMODELWIDGET_H_INCLUDED
+#endif // GALAXY_MODEL_WIDGET_H_INCLUDED

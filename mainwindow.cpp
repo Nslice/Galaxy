@@ -12,8 +12,8 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
 //    connect(nextButton, &QPushButton::clicked, model, &GalaxyModelWidget::nextModel);
 
     QSlider* slider = new QSlider(Qt::Orientation::Horizontal, this);
-    slider->setRange(0, 30);
-    slider->setValue(15);
+    slider->setRange(0, 360);
+    slider->setValue(360 / 2);
     connect(slider, &QSlider::valueChanged, model, &GalaxyModelWidget::rotateSpiralGalaxy);
 
     ui->mainVBoxLayout->addWidget(model);
@@ -22,9 +22,9 @@ MainWindow::MainWindow(QWidget* parent) : QMainWindow(parent), ui(new Ui::MainWi
     ui->mainVBoxLayout->addWidget(slider);
 
 
-    resize(model->size());
+    setFixedSize(model->size() + nextButton->size() + rotateButton->size() + slider->size());
     setAutoFillBackground(true);
-    dumpObjectTree();
+//    dumpObjectTree();
 }
 
 
