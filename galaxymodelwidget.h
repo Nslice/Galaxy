@@ -5,6 +5,7 @@
 #include <QPainter>
 #include <QImage>
 #include <QTimer>
+#include <QList>
 #include <QtMath>
 #include <QRandomGenerator>
 #include <QDebug>
@@ -25,23 +26,22 @@ private:
     QTimer* timer;
     QPoint center;
     int modelNumber;
+    QList<QPoint> list;
 
 public:
     explicit GalaxyModelWidget(QWidget* parent = nullptr);
 
-    void paintEvent(QPaintEvent*) override;
+    void paintEvent(QPaintEvent* event) override;
+
+    QPoint rotate(double x, double y, double a);
 
     void drawEllipticalGalaxy();
     void drawAlmondShapedGalaxy();
-    void drawSpiralGalaxy();
-
-
-    //без перемещения начала координат в центр виджета:
-    void ______drawSpiralGalaxy();
-    void ______drawEllipticalGalaxy();
+    void drawSpiralGalaxy(int arms);
 
 public slots:
     void nextModel();
+    void rotateSpiralGalaxy(int ticks);
 };
 
 

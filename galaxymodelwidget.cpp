@@ -10,13 +10,13 @@ GalaxyModelWidget::GalaxyModelWidget(QWidget* parent) : QWidget(parent)
     modelNumber = 2;
 
     QPalette pal;
-    QPixmap pix;
-    pix.load(":/res/pic/g1.bmp");
-    pix = pix.scaled(QSize(SIDE, SIDE), Qt::AspectRatioMode::IgnoreAspectRatio);
-    pal.setBrush(backgroundRole(), QBrush(pix));
+    //    QPixmap pix;
+    //    pix.load(":/res/pic/g1.bmp");
+    //    pix = pix.scaled(QSize(SIDE, SIDE), Qt::AspectRatioMode::IgnoreAspectRatio);
+    //    pal.setBrush(backgroundRole(), QBrush(pix));
 
 
-    //    pal.setColor(QPalette::Background, Qt::black);
+    pal.setColor(QPalette::Background, Qt::black);
     setPalette(pal);
 
     timer = new QTimer(this);
@@ -27,7 +27,7 @@ GalaxyModelWidget::GalaxyModelWidget(QWidget* parent) : QWidget(parent)
 
 
 
-void GalaxyModelWidget::paintEvent(QPaintEvent*)
+void GalaxyModelWidget::paintEvent(QPaintEvent* event)
 {
     switch (modelNumber)
     {
@@ -38,7 +38,7 @@ void GalaxyModelWidget::paintEvent(QPaintEvent*)
         drawAlmondShapedGalaxy();
         break;
     case 2:
-        drawSpiralGalaxy();
+        drawSpiralGalaxy(5);
         break;
     case 3:
     case 4:
@@ -46,10 +46,14 @@ void GalaxyModelWidget::paintEvent(QPaintEvent*)
         qDebug() << "wrong number";
     }
 
-    //    ______drawEllipticalGalaxy();
-    //    ______drawSpiralGalaxy();
+    QWidget::paintEvent(event);
 }
 
+
+QPoint GalaxyModelWidget::rotate(double x, double y, double a)
+{
+    return  QPointF(x * cos(a) + y * sin(a), -x*sin(a) + y*cos(a)).toPoint();
+}
 
 
 void GalaxyModelWidget::drawEllipticalGalaxy()
@@ -123,7 +127,7 @@ void GalaxyModelWidget::drawAlmondShapedGalaxy()
 
 
 
-void GalaxyModelWidget::drawSpiralGalaxy()
+void GalaxyModelWidget::drawSpiralGalaxy(int arms)
 {
     QPainter paint(this);
     paint.setPen(QColor(qRgb(255, 255, 255)));
@@ -131,113 +135,44 @@ void GalaxyModelWidget::drawSpiralGalaxy()
 
     std::function<double (double, double)> func = [](double d, double r)
     {
-        double num = qPow(M_E, -qPow(d, 5) / qPow(r, 2));
-        //        qDebug() << num
-        return num;
+        d *= 0.15;
+        return qExp(-qPow(d, 3) / qPow(r, 2));
     };
 
+    list.clear();
 
-    double h = 30.0 / LENGTH;
-    double len = 80.0 / LENGTH;
+    int h = 10;  //ширина рукава
+    int l = 500; //длина рукава
 
+    double b = M_PI * 0.2 * LENGTH;
+
+    double angle = M_PI / arms;
     for (int x = -LENGTH; x <= LENGTH; x++)
     {
         for (int y = -LENGTH; y <= LENGTH; y++)
         {
-            double fx = (double) x / LENGTH;
-            double fy = (double) y / LENGTH;
+            double d = qPow(x * x + y * y , 0.5);
 
-            double g = func(qPow(fx, 2), qPow(len, 2)) *
-                    func(qPow(fy, 2), qPow(h, 2));
-
-            if (rand->generateDouble() > g)
+            if ((rand->generateDouble() * 2.5) > (func(x * x, l * l) * func(y * y, h * h)))
+            {
                 continue;
+            }
             else
-                paint.drawPoint(x, y);
+            {
+                QPoint point = rotate(x, y, b / d);
+                list.push_back(point);
+                paint.drawPoint(point);
+
+                for (int i = 0; i < arms; i++)
+                {
+                    point = rotate(point.x(), point.y(), angle * i);
+                    paint.drawPoint(point);
+                }
+            }
         }
     }
     qDebug() << "GENERATED: Spiral Galaxy";
-}
-
-
-
-
-
-void GalaxyModelWidget::______drawSpiralGalaxy()
-{
-    QPainter paint(this);
-    paint.setPen(QColor(qRgb(255, 255, 255)));
-    //    paint.translate(width() / 2, height() / 2);
-
-    std::function<double (double, double)> func = [](double d, double r)
-    {
-        double num = qPow(M_E, -qPow(d, 5) / qPow(r, 2)); //M_E = 2.71
-        //        qDebug() << num
-        return num;
-    };
-
-    double h = 30.0;
-    double len = 80.0;
-    qDebug() << " center: " << center;
-
-    for (int x = 0; x < width(); x++)
-    {
-        for (int y = 0; y < height(); y++)
-        {
-            double g = func(qPow(x - center.x(), 2), qPow(len, 2));
-            g *= func(qPow(y - center.y(), 2), qPow(h, 2));
-
-            //            qDebug() << "G = " << g;
-            if (rand->bounded(500) > g)
-                continue;
-            else
-                paint.drawPoint(x, y);
-        }
-    }
-
-    qDebug() << "GENERATED: Spiral Galaxy";
-
-}
-
-
-
-void GalaxyModelWidget::______drawEllipticalGalaxy()
-{
-    QImage background(size(), QImage::Format_ARGB32_Premultiplied);
-    QRgb rgb = qRgb(255, 255, 255);
-
-    std::function<double (double, double)> func = [](double distance, double radius)
-    {
-        double num = qPow(M_E, -(qPow(distance, 4) / qPow(radius, 2)));
-
-        //        qDebug() << num;
-        return num;
-    };
-
-
-    double radius = 0.07;
-
-    qDebug() << rand->generateDouble();
-    for (int x = 0; x < width(); x++)
-    {
-        for (int y = 0; y < height(); y++)
-        {
-
-            double distance = (qSqrt(qPow(x - center.x(), 2) + qPow(y - center.y(), 2)));
-            distance /= 500.0;
-            //            qDebug() << "DIST : " << distance;
-
-            if (rand->generateDouble() > func(distance,  radius))
-                continue;
-            else
-                background.setPixel(x, y, rgb);
-        }
-    }
-
-    qDebug() << "GENERATED: Elliptical Galaxy";
-
-    QPainter paint(this);
-    paint.drawImage(0, 0, background);
+    qDebug() << "List size: " << list.size();
 }
 
 
@@ -245,8 +180,30 @@ void GalaxyModelWidget::______drawEllipticalGalaxy()
 void GalaxyModelWidget::nextModel()
 {
     modelNumber = (modelNumber + 1) % 3;
-    qDebug() << "modelNumber :" << modelNumber;
-    QPainter paint(this);
-    paint.eraseRect(0, 0, SIDE, SIDE);
-//    paintEvent(nullptr);
+    qDebug() << "modelNumber: " << modelNumber;
+    qDebug() << "List size: " << list.size();
+    update();
+}
+
+
+
+void GalaxyModelWidget::rotateSpiralGalaxy(int ticks)
+{
+    if (modelNumber == 2)
+    {
+        qDebug() << "TICKS: " << ticks;
+        QPainter paint(this);
+        paint.setPen(QColor(qRgb(0, 0, 0)));
+        paint.translate(LENGTH, LENGTH);
+
+        foreach (QPoint point, list)
+        {
+            paint.drawPoint(point.x(), point.y());
+            paint.setPen(QColor(qRgb(255, 255, 255)));
+            point = rotate(point.x(), point.y(), ticks);
+            paint.drawPoint(point);
+            update();
+        }
+    }
+
 }

@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include <QPushButton>
+#include <QtWidgets>
 #include "galaxymodelwidget.h"
 
 
@@ -18,6 +19,7 @@ private:
     Ui::MainWindow* ui;
     GalaxyModelWidget* model;
     QPushButton* nextButton;
+    QPushButton* rotateButton;
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
