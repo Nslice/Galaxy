@@ -1,9 +1,10 @@
-#ifndef MAINWINDOW_H_INCLUDED
-#define MAINWINDOW_H_INCLUDED
+#ifndef MAIN_WINDOW_H_INCLUDED
+#define MAIN_WINDOW_H_INCLUDED
 
 #include <QMainWindow>
 #include <QPushButton>
-#include <QtWidgets>
+#include <QSlider>
+
 #include "galaxymodelwidget.h"
 
 
@@ -19,13 +20,15 @@ private:
     Ui::MainWindow* ui;
     GalaxyModelWidget* model;
     QPushButton* nextButton;
-    QPushButton* rotateButton;
+    QSlider* slider;
 
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-
+private slots:
+    void blockSlider();
 };
 
-#endif // MAINWINDOW_H_INCLUDED
+
+#endif // MAIN_WINDOW_H_INCLUDED
